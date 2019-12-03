@@ -171,4 +171,107 @@ rs0:PRIMARY> rs.status().members
         }
 ]
 ```
+### Scaling up
 
+```
+kubectl scale --replicas=5 statefulset mongo
+
+NAME      READY   STATUS    RESTARTS   AGE
+mongo-0   2/2     Running   0          17m
+mongo-1   2/2     Running   0          16m
+mongo-2   2/2     Running   0          16m
+mongo-3   2/2     Running   0          11s
+mongo-4   2/2     Running   0          5s
+```
+```
+kubectl exec -it mongo-0 mongo
+[
+        {
+                "_id" : 0,
+                "name" : "172.18.0.5:27017",
+                "health" : 1,
+                "state" : 1,
+                "stateStr" : "PRIMARY",
+				......
+		},
+        {
+                "_id" : 1,
+                "name" : "172.18.0.6:27017",
+                "health" : 1,
+                "state" : 2,
+                "stateStr" : "SECONDARY",
+				......
+		},
+        {
+                "_id" : 2,
+                "name" : "172.18.0.7:27017",
+                "health" : 1,
+                "state" : 2,
+                "stateStr" : "SECONDARY",
+				......
+		},
+        {
+                "_id" : 3,
+                "name" : "172.18.0.8:27017",
+                "health" : 1,
+                "state" : 2,
+                "stateStr" : "SECONDARY",
+				......
+		},
+        {
+                "_id" : 4,
+                "name" : "172.18.0.9:27017",
+                "health" : 1,
+                "state" : 2,
+                "stateStr" : "SECONDARY",
+				......
+        }
+]
+```
+As you can see we now have 5 MongoDB nodes all as members of the ReplicaSet. 
+```
+kubectl delete pods mongo-0
+kubectl get pods
+mongo-0   2/2     Running   0          18s
+mongo-1   2/2     Running   0          4m44s
+mongo-2   2/2     Running   0          4m39s
+mongo-3   2/2     Running   0          4m11s
+mongo-4   2/2     Running   0          4m6s
+```
+If we delete pod mongo-0 K8s will automatically spin up another one and sidecar will automatically add it to the MongoDB replicaset. 
+As it was the primary node "mongo-0" we deleted another primary node is automatically elected by MongoDB.
+
+```
+kubectl exec -it mongo-0 mongo
+*mongo-0 is now a secondary node as another node was elected as primary*
+rs0:SECONDARY> rs.slaveOk()
+rs0:SECONDARY> rs.status().members
+[
+        {
+                "_id" : 0,
+                "name" : "172.18.0.5:27017",
+                "health" : 1,
+                "state" : 2,
+                "stateStr" : "SECONDARY",
+                ......
+        },
+        {
+                "_id" : 1,
+                "name" : "172.18.0.6:27017",
+                "health" : 1,
+                "state" : 2,
+                "stateStr" : "SECONDARY",
+                ......
+        },
+        {
+                "_id" : 2,
+                "name" : "172.18.0.7:27017",
+                "health" : 1,
+                "state" : 1,
+                "stateStr" : "PRIMARY",
+                ......
+        },
+		.........................
+		.........................
+]
+```
