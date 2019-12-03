@@ -275,3 +275,45 @@ rs0:SECONDARY> rs.status().members
 		.........................
 ]
 ```
+```
+kubectl exec -it mongo-2 mongo
+rs0:PRIMARY>
+```
+mongo-2 is now our primary node. 
+
+### Connecting to MongoDB replicaSet. 
+If you want to access each node externally then you will need to create a Load Balancer for each mongoDB pod. The load balancer will give you a public ID to connect to the specific mongodb node. 
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-0
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 27017
+    protocol: TCP
+    targetPort: 27017
+  selector: 
+    app: mongo-0
+```
+
+```
+kubectl get svc 
+NAME         TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)           AGE
+kubernetes   ClusterIP      10.96.0.1       <none>        443/TCP           21m
+mongo        ClusterIP      None            <none>        27017/TCP         14m
+mongo-0      LoadBalancer   10.108.111.98   <pending>     27017:30108/TCP   3s
+```
+As I'm using minikube I dont have an external IP. However cloud proivers such as GCP and AWS will provide a public IP. 
+
+If you want to connect to the MongoDB ReplicaSet using an application, for example in Spring Boot
+In you application.yaml file. 
+```
+spring:
+  profiles: testing
+  data:
+    mongodb:
+      uri: mongodb://mongo-0.mongo,mongo-1.mongo,mongo-2.mongo:27017/dbname
+```
