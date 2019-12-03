@@ -282,7 +282,7 @@ rs0:PRIMARY>
 mongo-2 is now our primary node. 
 
 ### Connecting to MongoDB replicaSet. 
-If you want to access each node externally then you will need to create a Load Balancer for each mongoDB pod. The load balancer will give you a public ID to connect to the specific mongodb node. 
+If you want to access each node externally then you will need to create a Load Balancer for each mongoDB pod. The load balancer will give you a public IP to connect to the specific mongodb node. 
 
 ```
 apiVersion: v1
