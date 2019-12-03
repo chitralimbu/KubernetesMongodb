@@ -1,4 +1,4 @@
-# KubernetesMongodb
+# KubernetesMongodb (K8s v1.15.0)
 Scaling containerized MongoDb using K8s and Docker
 
 ### Follow tutorial: 
