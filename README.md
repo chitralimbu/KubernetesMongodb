@@ -309,7 +309,7 @@ mongo-0      LoadBalancer   10.108.111.98   <pending>     27017:30108/TCP   3s
 As I'm using minikube I dont have an external IP. However cloud proivers such as GCP and AWS will provide a public IP. 
 
 If you want to connect to the MongoDB ReplicaSet using an application, for example in Spring Boot
-In you application.yaml file. 
+In your application.yaml file. 
 ```
 spring:
   profiles: testing
